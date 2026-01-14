@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>よっ友メモ - Friend Memo</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/JwyfJqNF/Gemini-Generated-Image-odcafsodcafsodca.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="よっ友メモ">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Noto Sans JP"', 'sans-serif'] },
+                    colors: {
+                        pastel: {
+                            bg: '#FDFBF7', primary: '#A5B4FC', secondary: '#FDA4AF', surface: '#FFFFFF', text: '#475569',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* UI調整 */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-thumb { background-color: #CBD5E1; border-radius: 3px; }
+        .emoji-radio:checked + label { background-color: #E0E7FF; border-color: #A5B4FC; transform: scale(1.1); }
+        .view-btn.active { background-color: #E0E7FF; color: #6366F1; }
+        /* スムーズな操作感 */
+        body { -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="bg-pastel-bg text-pastel-text font-sans antialiased min-h-screen pb-24 relative safe-area-inset-bottom">
+
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
+        <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-indigo-500 flex items-center gap-2 select-none" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+                <span>🎓</span> よっ友メモ
+            </h1>
+            <div class="flex gap-2">
+                <button id="dataMenuBtn" class="text-gray-400 hover:text-indigo-500 p-1.5 rounded-full hover:bg-gray-100 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                </button>
+                <button id="toggleFormBtn" class="text-sm bg-indigo-100 text-indigo-600 px-3 py-1.5 rounded-full hover:bg-indigo-200 transition font-medium">
+                    ＋ 新規
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto px-4 py-6 space-y-6">
+
+        <section id="formSection" class="bg-white rounded-2xl shadow-lg p-5 border border-indigo-50 hidden transition-all duration-300 transform origin-top">
+            <h2 class="text-lg font-bold mb-4 text-gray-700 flex justify-between items-center">
+                <span id="formTitle">友達を登録</span>
+                <button type="button" id="closeFormBtn" class="text-gray-400 hover:text-gray-600 p-1">✕</button>
+            </h2>
+            
+            <form id="friendForm" class="space-y-4">
+                <input type="hidden" id="editId">
+
+                <div>
+                    <label class="block text-sm font-bold mb-2 text-gray-600">イメージ絵文字</label>
+                    <div class="flex items-center gap-3 mb-3">
+                        <input type="text" id="emojiManualInput" class="w-16 h-16 text-3xl text-center bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300 transition" placeholder="😊" maxlength="2">
+                        <div class="text-xs text-gray-400">
+                            <span class="font-bold text-indigo-400">←</span> リスト選択または<br>直接入力
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-6 gap-2" id="emojiGrid"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">名前 <span class="text-red-400">*</span></label>
+                        <input type="text" id="nameInput" placeholder="山田 太郎" required class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">あだ名</label>
+                        <input type="text" id="nicknameInput" placeholder="たろちゃん" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">特徴</label>
+                    <input type="text" id="featureInput" placeholder="いつも帽子をかぶってる" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">タグ（カンマ区切り）</label>
+                    <input type="text" id="tagsInput" placeholder="サークル, 学部" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">メモ</label>
+                    <textarea id="memoInput" rows="3" placeholder="詳細メモ..." class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition"></textarea>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="button" id="cancelBtn" class="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition">クリア</button>
+                    <button type="submit" id="saveBtn" class="flex-2 w-full py-3 bg-indigo-400 text-white rounded-xl font-bold shadow-md hover:bg-indigo-500 transition transform active:scale-95">保存する</button>
+                </div>
+                
+                <div id="deleteBtnArea" class="mt-4 pt-4 border-t border-gray-100 hidden">
+                    <button type="button" id="deleteFromFormBtn" class="w-full py-2 text-red-400 hover:text-red-600 font-bold text-sm transition flex items-center justify-center gap-1">この友達を削除</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="space-y-3">
+            <div class="relative">
+                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
+                <input type="text" id="searchInput" placeholder="検索..." class="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 transition text-sm">
+            </div>
+            <div class="overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                <div class="flex gap-2" id="tagFilterContainer">
+                    <button class="px-4 py-1.5 rounded-full text-xs font-bold bg-gray-700 text-white whitespace-nowrap transition" data-tag="ALL">すべて</button>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-gray-500 text-sm">登録リスト <span id="countBadge" class="ml-1 bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full text-xs">0人</span></h3>
+                <div class="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
+                    <button id="viewListBtn" class="view-btn active px-2 py-1 rounded-md text-gray-400 hover:text-gray-600 transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+                    <button id="viewGridBtn" class="view-btn px-2 py-1 rounded-md text-gray-400 hover:text-gray-600 transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg></button>
+                </div>
+            </div>
+            
+            <ul id="friendList" class="space-y-4 pb-20"></ul>
+
+            <div id="emptyState" class="hidden text-center py-10">
+                <div class="text-4xl mb-3">🍃</div>
+                <p class="text-gray-400 font-medium">データがありません</p>
+            </div>
+        </section>
+    </main>
+
+    <button id="fabBtn" class="fixed bottom-6 right-6 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full p-4 shadow-xl transition transform hover:scale-110 md:hidden z-40 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+    </button>
+
+    <script>
+        // --- 設定・定数 ---
+        const EMOJI_LIST = ['😊', '😎', '🤓', '🤠', '🥳', '🧐', '😴', '🤔', '😇', '🥺', '😂', '😷', '🎓', '⚽', '🎸', '💻', '🎨', '✈️'];
+        const STORAGE_KEY = 'yottomo_friends_db'; // LocalStorageのキー
+
+        // --- 状態管理 ---
+        let friends = [];
+        let currentFilterTag = 'ALL';
+        let searchQuery = '';
+        let viewMode = 'list';
+
+        // --- DOM要素 ---
+        const els = {
+            formSection: document.getElementById('formSection'),
+            formTitle: document.getElementById('formTitle'),
+            form: document.getElementById('friendForm'),
+            toggleBtn: document.getElementById('toggleFormBtn'),
+            closeBtn: document.getElementById('closeFormBtn'),
+            fabBtn: document.getElementById('fabBtn'),
+            cancelBtn: document.getElementById('cancelBtn'),
+            saveBtn: document.getElementById('saveBtn'),
+            emojiGrid: document.getElementById('emojiGrid'),
+            inputs: {
+                id: document.getElementById('editId'),
+                name: document.getElementById('nameInput'),
+                nickname: document.getElementById('nicknameInput'),
+                feature: document.getElementById('featureInput'),
+                tags: document.getElementById('tagsInput'),
+                memo: document.getElementById('memoInput'),
+                emojiManual: document.getElementById('emojiManualInput'),
+            },
+            list: document.getElementById('friendList'),
+            emptyState: document.getElementById('emptyState'),
+            countBadge: document.getElementById('countBadge'),
+            searchInput: document.getElementById('searchInput'),
+            tagFilterContainer: document.getElementById('tagFilterContainer'),
+            viewBtns: {
+                list: document.getElementById('viewListBtn'),
+                grid: document.getElementById('viewGridBtn')
+            },
+            deleteBtnArea: document.getElementById('deleteBtnArea'),
+            deleteFromFormBtn: document.getElementById('deleteFromFormBtn'),
+            dataMenuBtn: document.getElementById('dataMenuBtn')
+        };
+
+        // --- 初期化 ---
+        function init() {
+            renderEmojiPicker();
+            loadFriendsFromStorage(); // サーバーではなくローカルからロード
+            renderTagFilters();
+            renderList();
+            setupEventListeners();
+        }
+
+        // --- データ操作 (LocalStorage) ---
+        
+        function loadFriendsFromStorage() {
+            const json = localStorage.getItem(STORAGE_KEY);
+            if (json) {
+                friends = JSON.parse(json);
+                // 日付文字列をDateオブジェクト的な扱いのためにソート時は注意（今回は文字列比較でも概ねOKだが念のため）
+                friends.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            } else {
+                friends = [];
+            }
+        }
+
+        function saveToStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(friends));
+            loadFriendsFromStorage(); // 再ロードしてソートなどを反映
+            renderTagFilters();
+            renderList();
+        }
+
+        function saveFriendData(friendData) {
+            const now = new Date().toISOString();
+
+            if (friendData.id) {
+                // 更新
+                const index = friends.findIndex(f => f.id === friendData.id);
+                if (index !== -1) {
+                    friends[index] = {
+                        ...friends[index],
+                        ...friendData,
+                        updatedAt: now
+                    };
+                }
+            } else {
+                // 新規作成
+                const newFriend = {
+                    ...friendData,
+                    id: crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now(), // UUID生成
+                    createdAt: now,
+                    updatedAt: now
+                };
+                friends.push(newFriend);
+            }
+            
+            saveToStorage();
+            resetForm();
+            toggleForm(false);
+        }
+
+        function deleteFriend(id) {
+            if (!confirm('本当に削除しますか？')) return;
+            friends = friends.filter(f => f.id !== id);
+            saveToStorage();
+            if (!els.formSection.classList.contains('hidden')) {
+                toggleForm(false);
+            }
+        }
+
+        // --- レンダリング (UI生成) ---
+
+        function renderEmojiPicker() {
+            if (!els.inputs.emojiManual.value) els.inputs.emojiManual.value = EMOJI_LIST[0];
+            els.emojiGrid.innerHTML = EMOJI_LIST.map((emoji, index) => `
+                <div class="relative">
+                    <input type="radio" name="emoji" id="emoji-${index}" value="${emoji}" class="emoji-radio sr-only" ${index === 0 ? 'checked' : ''}>
+                    <label for="emoji-${index}" class="block w-full aspect-square flex items-center justify-center text-xl bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-indigo-50 transition select-none">
+                        ${emoji}
+                    </label>
+                </div>
+            `).join('');
+        }
+
+        function renderTagFilters() {
+            const allTags = new Set();
+            friends.forEach(f => {
+                if(Array.isArray(f.tags)) f.tags.forEach(t => { if(t.trim()) allTags.add(t.trim()); });
+            });
+            const container = els.tagFilterContainer;
+            // 2番目以降（生成されたタグボタン）を削除
+            while (container.children.length > 1) {
+                container.removeChild(container.lastChild);
+            }
+
+            Array.from(allTags).sort().forEach(tag => {
+                const btn = document.createElement('button');
+                btn.className = `px-3 py-1.5 rounded-full text-xs font-bold border whitespace-nowrap transition flex-shrink-0 ${currentFilterTag === tag ? 'bg-indigo-400 text-white border-indigo-400' : 'bg-white text-gray-500 border-gray-200 hover:bg-indigo-50'}`;
+                btn.textContent = `#${tag}`;
+                btn.onclick = () => { currentFilterTag = tag; renderTagFilters(); renderList(); };
+                container.appendChild(btn);
+            });
+            
+            const allBtn = container.children[0];
+            allBtn.className = `px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition flex-shrink-0 ${currentFilterTag === 'ALL' ? 'bg-gray-700 text-white' : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-100'}`;
+        }
+
+        function renderList() {
+            let filtered = friends.filter(f => {
+                if (currentFilterTag !== 'ALL') {
+                    if (!f.tags || !f.tags.some(t => t.trim() === currentFilterTag)) return false;
+                }
+                if (searchQuery) {
+                    const q = searchQuery.toLowerCase();
+                    const tagsStr = Array.isArray(f.tags) ? f.tags.join(' ') : '';
+                    const text = `${f.name} ${f.nickname} ${f.feature} ${f.memo} ${tagsStr}`.toLowerCase();
+                    return text.includes(q);
+                }
+                return true;
+            });
+            
+            els.list.innerHTML = '';
+            els.countBadge.textContent = `${filtered.length}人`;
+            
+            if (viewMode === 'list') els.list.className = 'space-y-3';
+            else els.list.className = 'grid grid-cols-2 gap-3 space-y-0';
+
+            if (filtered.length === 0) els.emptyState.classList.remove('hidden');
+            else {
+                els.emptyState.classList.add('hidden');
+                filtered.forEach(friend => els.list.appendChild(createCardElement(friend)));
+            }
+        }
+
+        function createCardElement(friend) {
+            const li = document.createElement('li');
+            const tagsHtml = (friend.tags || []).map(tag => `<span class="inline-block bg-indigo-50 text-indigo-600 text-[10px] px-1.5 py-0.5 rounded mr-1 mb-1">#${tag}</span>`).join('');
+            const memoHtml = (friend.memo || '').replace(/\n/g, '<br>');
+
+            if (viewMode === 'list') {
+                li.className = 'bg-white rounded-xl shadow-sm border border-gray-100 p-4 transition active:bg-gray-50';
+                li.innerHTML = `
+                    <div class="flex items-start gap-3" onclick="editFriend('${friend.id}')">
+                        <div class="flex-shrink-0 w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center text-2xl shadow-inner">
+                            ${friend.emoji}
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold text-gray-800 text-base leading-tight">${friend.name}</h3>
+                                    ${friend.nickname ? `<p class="text-xs text-indigo-500 font-medium">@${friend.nickname}</p>` : ''}
+                                </div>
+                            </div>
+                            ${friend.feature ? `<div class="mt-1.5 text-xs text-gray-600 bg-gray-50 px-2 py-0.5 rounded border border-gray-100 inline-block truncate max-w-full">💡 ${friend.feature}</div>` : ''}
+                            ${memoHtml ? `<div class="mt-2 text-xs text-gray-500 leading-relaxed border-t border-gray-100 pt-1 line-clamp-2">${memoHtml}</div>` : ''}
+                            ${tagsHtml ? `<div class="mt-2 flex flex-wrap">${tagsHtml}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            } else {
+                li.className = 'bg-white rounded-xl shadow-sm border border-gray-100 p-3 transition active:bg-gray-50 h-full flex flex-col items-center text-center';
+                li.onclick = () => editFriend(friend.id);
+                li.innerHTML = `
+                    <div class="flex-shrink-0 w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center text-2xl shadow-inner mb-2">
+                        ${friend.emoji}
+                    </div>
+                    <h3 class="font-bold text-gray-800 text-sm leading-tight w-full truncate px-1">${friend.name}</h3>
+                    ${friend.nickname ? `<p class="text-[10px] text-indigo-500 font-medium mb-1 truncate max-w-full">@${friend.nickname}</p>` : '<div class="mb-1 h-3"></div>'}
+                    ${tagsHtml ? `<div class="mt-auto flex flex-wrap justify-center gap-0.5 w-full overflow-hidden h-5 opacity-80">${tagsHtml}</div>` : ''}
+                `;
+            }
+            return li;
+        }
+
+        // --- イベントハンドラ ---
+
+        function toggleForm(show) {
+            if (show) {
+                els.formSection.classList.remove('hidden');
+                els.fabBtn.classList.add('hidden');
+                // スマホで見やすいように少しスクロール
+                els.formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                els.formSection.classList.add('hidden');
+                els.fabBtn.classList.remove('hidden');
+                resetForm();
+            }
+        }
+
+        function resetForm() {
+            els.form.reset();
+            els.inputs.id.value = '';
+            els.formTitle.textContent = '友達を登録';
+            els.saveBtn.textContent = '保存する';
+            els.deleteBtnArea.classList.add('hidden');
+            els.inputs.emojiManual.value = EMOJI_LIST[0];
+            const firstEmoji = document.getElementById('emoji-0');
+            if(firstEmoji) firstEmoji.checked = true;
+        }
+
+        window.editFriend = function(id) {
+            const friend = friends.find(f => f.id === id);
+            if (!friend) return;
+
+            els.inputs.id.value = friend.id;
+            els.inputs.name.value = friend.name;
+            els.inputs.nickname.value = friend.nickname;
+            els.inputs.feature.value = friend.feature;
+            els.inputs.tags.value = (friend.tags || []).join(', ');
+            els.inputs.memo.value = friend.memo;
+            els.inputs.emojiManual.value = friend.emoji || EMOJI_LIST[0];
+
+            // ラジオボタン反映
+            const radio = Array.from(document.querySelectorAll('.emoji-radio')).find(r => r.value === friend.emoji);
+            if (radio) radio.checked = true;
+            else document.querySelectorAll('.emoji-radio').forEach(r => r.checked = false);
+
+            els.deleteBtnArea.classList.remove('hidden');
+            els.formTitle.textContent = '友達情報を編集';
+            els.saveBtn.textContent = '更新する';
+            toggleForm(true);
+        };
+
+        function setupEventListeners() {
+            els.form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = els.inputs.name.value.trim();
+                if (!name) return;
+                
+                const friendData = {
+                    id: els.inputs.id.value || null,
+                    name: name,
+                    nickname: els.inputs.nickname.value.trim(),
+                    feature: els.inputs.feature.value.trim(),
+                    memo: els.inputs.memo.value.trim(),
+                    emoji: els.inputs.emojiManual.value.trim() || EMOJI_LIST[0],
+                    tags: els.inputs.tags.value.split(/[,、\s]+/).filter(t => t.length > 0)
+                };
+                saveFriendData(friendData);
+            });
+
+            els.cancelBtn.addEventListener('click', () => resetForm());
+            els.toggleBtn.addEventListener('click', () => toggleForm(true));
+            els.fabBtn.addEventListener('click', () => toggleForm(true));
+            els.closeBtn.addEventListener('click', () => toggleForm(false));
+            
+            els.deleteFromFormBtn.addEventListener('click', () => {
+                const id = els.inputs.id.value;
+                if(id) deleteFriend(id);
+            });
+
+            els.searchInput.addEventListener('input', (e) => { searchQuery = e.target.value.trim(); renderList(); });
+            els.tagFilterContainer.children[0].addEventListener('click', () => { currentFilterTag = 'ALL'; renderTagFilters(); renderList(); });
+
+            els.emojiGrid.addEventListener('change', (e) => { if (e.target.name === 'emoji') els.inputs.emojiManual.value = e.target.value; });
+            els.inputs.emojiManual.addEventListener('input', (e) => {
+                const val = e.target.value;
+                const radio = Array.from(document.querySelectorAll('.emoji-radio')).find(r => r.value === val);
+                if (radio) radio.checked = true;
+            });
+
+            els.viewBtns.list.addEventListener('click', () => { viewMode = 'list'; els.viewBtns.list.classList.add('active'); els.viewBtns.grid.classList.remove('active'); renderList(); });
+            els.viewBtns.grid.addEventListener('click', () => { viewMode = 'grid'; els.viewBtns.grid.classList.add('active'); els.viewBtns.list.classList.remove('active'); renderList(); });
+
+            // データエクスポート機能（JSONコピー）
+            els.dataMenuBtn.addEventListener('click', () => {
+                const dataStr = JSON.stringify(friends, null, 2);
+                const doCopy = confirm('現在のデータをクリップボードにコピーしますか？\n（バックアップとして利用できます）');
+                if(doCopy) {
+                    navigator.clipboard.writeText(dataStr).then(() => alert('コピーしました')).catch(e => alert('コピー失敗:' + e));
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
