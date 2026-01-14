@@ -4,12 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>よっ友メモ - Friend Memo</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/JwyfJqNF/Gemini-Generated-Image-odcafsodcafsodca.png">
+    
+    <!-- ▼▼▼ アイコン設定（ここを変更しました） ▼▼▼ -->
+    <!-- GitHubにアップロードした画像ファイル名（例: icon.jpg）を指定 -->
+    <link rel="icon" href="./icon.jpg">
+    <link rel="apple-touch-icon" sizes="180x180" href="./icon.jpg">
+    <!-- ▲▲▲▲▲▲ -->
+
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="よっ友メモ">
     
+    <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     
     <script>
@@ -32,22 +40,27 @@
         ::-webkit-scrollbar-thumb { background-color: #CBD5E1; border-radius: 3px; }
         .emoji-radio:checked + label { background-color: #E0E7FF; border-color: #A5B4FC; transform: scale(1.1); }
         .view-btn.active { background-color: #E0E7FF; color: #6366F1; }
+        /* モーダル表示時の背景固定 */
+        body.modal-open { overflow: hidden; }
         /* スムーズな操作感 */
         body { -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
 <body class="bg-pastel-bg text-pastel-text font-sans antialiased min-h-screen pb-24 relative safe-area-inset-bottom">
 
-    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
+    <!-- ヘッダー -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
         <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
             <h1 class="text-xl font-bold text-indigo-500 flex items-center gap-2 select-none" onclick="window.scrollTo({top:0, behavior:'smooth'})">
                 <span>🎓</span> よっ友メモ
             </h1>
             <div class="flex gap-2">
-                <button id="dataMenuBtn" class="text-gray-400 hover:text-indigo-500 p-1.5 rounded-full hover:bg-gray-100 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <!-- データ管理ボタン -->
+                <button id="dataMenuBtn" class="text-gray-500 hover:text-indigo-600 bg-gray-50 hover:bg-indigo-50 px-3 py-1.5 rounded-full transition flex items-center gap-1 text-xs font-bold border border-gray-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
+                    データ
                 </button>
                 <button id="toggleFormBtn" class="text-sm bg-indigo-100 text-indigo-600 px-3 py-1.5 rounded-full hover:bg-indigo-200 transition font-medium">
                     ＋ 新規
@@ -58,6 +71,7 @@
 
     <main class="max-w-md mx-auto px-4 py-6 space-y-6">
 
+        <!-- 登録・編集フォームエリア -->
         <section id="formSection" class="bg-white rounded-2xl shadow-lg p-5 border border-indigo-50 hidden transition-all duration-300 transform origin-top">
             <h2 class="text-lg font-bold mb-4 text-gray-700 flex justify-between items-center">
                 <span id="formTitle">友達を登録</span>
@@ -67,6 +81,7 @@
             <form id="friendForm" class="space-y-4">
                 <input type="hidden" id="editId">
 
+                <!-- アイコン選択 -->
                 <div>
                     <label class="block text-sm font-bold mb-2 text-gray-600">イメージ絵文字</label>
                     <div class="flex items-center gap-3 mb-3">
@@ -78,6 +93,7 @@
                     <div class="grid grid-cols-6 gap-2" id="emojiGrid"></div>
                 </div>
 
+                <!-- 名前 & ニックネーム -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-gray-500 mb-1">名前 <span class="text-red-400">*</span></label>
@@ -89,32 +105,38 @@
                     </div>
                 </div>
 
+                <!-- 特徴 -->
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1">特徴</label>
                     <input type="text" id="featureInput" placeholder="いつも帽子をかぶってる" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition">
                 </div>
 
+                <!-- タグ -->
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1">タグ（カンマ区切り）</label>
                     <input type="text" id="tagsInput" placeholder="サークル, 学部" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition">
                 </div>
 
+                <!-- メモ -->
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1">メモ</label>
                     <textarea id="memoInput" rows="3" placeholder="詳細メモ..." class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition"></textarea>
                 </div>
 
+                <!-- ボタンエリア -->
                 <div class="flex gap-3 pt-2">
                     <button type="button" id="cancelBtn" class="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition">クリア</button>
                     <button type="submit" id="saveBtn" class="flex-2 w-full py-3 bg-indigo-400 text-white rounded-xl font-bold shadow-md hover:bg-indigo-500 transition transform active:scale-95">保存する</button>
                 </div>
                 
+                <!-- 削除ボタン -->
                 <div id="deleteBtnArea" class="mt-4 pt-4 border-t border-gray-100 hidden">
                     <button type="button" id="deleteFromFormBtn" class="w-full py-2 text-red-400 hover:text-red-600 font-bold text-sm transition flex items-center justify-center gap-1">この友達を削除</button>
                 </div>
             </form>
         </section>
 
+        <!-- 検索・フィルタ -->
         <section class="space-y-3">
             <div class="relative">
                 <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
@@ -127,6 +149,7 @@
             </div>
         </section>
 
+        <!-- 友達リスト -->
         <section>
             <div class="flex justify-between items-center mb-3">
                 <h3 class="font-bold text-gray-500 text-sm">登録リスト <span id="countBadge" class="ml-1 bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full text-xs">0人</span></h3>
@@ -145,16 +168,74 @@
         </section>
     </main>
 
-    <button id="fabBtn" class="fixed bottom-6 right-6 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full p-4 shadow-xl transition transform hover:scale-110 md:hidden z-40 active:scale-95">
+    <!-- FAB -->
+    <button id="fabBtn" class="fixed bottom-6 right-6 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full p-4 shadow-xl transition transform hover:scale-110 md:hidden z-30 active:scale-95">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
     </button>
 
+    <!-- データ管理モーダル -->
+    <div id="dataModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <!-- 背景オーバーレイ -->
+        <div id="dataModalOverlay" class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"></div>
+        
+        <!-- モーダルコンテンツ -->
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm relative z-10 overflow-hidden animate-fade-in-up">
+            <div class="bg-indigo-50 p-4 border-b border-indigo-100 flex justify-between items-center">
+                <h3 class="font-bold text-indigo-800 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                    データ管理
+                </h3>
+                <button id="closeDataModalBtn" class="text-gray-400 hover:text-gray-600 p-1 bg-white rounded-full">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <div class="p-5 space-y-6">
+                <!-- エクスポート -->
+                <div>
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">書き出し（バックアップ）</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="copyJsonBtn" class="flex flex-col items-center justify-center gap-2 p-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-indigo-50 hover:border-indigo-200 transition text-gray-600">
+                            <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                            <span class="text-xs font-bold">コピー</span>
+                        </button>
+                        <button id="downloadJsonBtn" class="flex flex-col items-center justify-center gap-2 p-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-indigo-50 hover:border-indigo-200 transition text-gray-600">
+                            <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            <span class="text-xs font-bold">ファイル保存</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- インポート -->
+                <div>
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">読み込み（復元）</h4>
+                    <div class="bg-yellow-50 border border-yellow-100 rounded-lg p-3 mb-3 flex gap-2 items-start">
+                        <svg class="w-5 h-5 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <p class="text-[10px] text-yellow-800 leading-tight">
+                            JSONファイルを読み込みます。<br>
+                            データ形式が正しくない場合、読み込みはキャンセルされます。
+                        </p>
+                    </div>
+                    <input type="file" id="importInput" accept=".json,application/json" class="hidden">
+                    <button id="importBtn" class="w-full py-3 border-2 border-dashed border-indigo-200 rounded-xl text-indigo-500 font-bold hover:bg-indigo-50 hover:border-indigo-400 transition flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        ファイルを選択して読み込む
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 p-3 text-center border-t border-gray-100">
+                <p class="text-[10px] text-gray-400">Version 1.1.1 - Icon Update</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- 設定・定数 ---
         const EMOJI_LIST = ['😊', '😎', '🤓', '🤠', '🥳', '🧐', '😴', '🤔', '😇', '🥺', '😂', '😷', '🎓', '⚽', '🎸', '💻', '🎨', '✈️'];
-        const STORAGE_KEY = 'yottomo_friends_db'; // LocalStorageのキー
+        const STORAGE_KEY = 'yottomo_friends_db';
 
         // --- 状態管理 ---
         let friends = [];
@@ -193,26 +274,37 @@
             },
             deleteBtnArea: document.getElementById('deleteBtnArea'),
             deleteFromFormBtn: document.getElementById('deleteFromFormBtn'),
-            dataMenuBtn: document.getElementById('dataMenuBtn')
+            // データ管理関連
+            dataMenuBtn: document.getElementById('dataMenuBtn'),
+            dataModal: document.getElementById('dataModal'),
+            closeDataModalBtn: document.getElementById('closeDataModalBtn'),
+            dataModalOverlay: document.getElementById('dataModalOverlay'),
+            copyJsonBtn: document.getElementById('copyJsonBtn'),
+            downloadJsonBtn: document.getElementById('downloadJsonBtn'),
+            importInput: document.getElementById('importInput'),
+            importBtn: document.getElementById('importBtn')
         };
 
         // --- 初期化 ---
         function init() {
             renderEmojiPicker();
-            loadFriendsFromStorage(); // サーバーではなくローカルからロード
+            loadFriendsFromStorage();
             renderTagFilters();
             renderList();
             setupEventListeners();
         }
 
         // --- データ操作 (LocalStorage) ---
-        
         function loadFriendsFromStorage() {
             const json = localStorage.getItem(STORAGE_KEY);
             if (json) {
-                friends = JSON.parse(json);
-                // 日付文字列をDateオブジェクト的な扱いのためにソート時は注意（今回は文字列比較でも概ねOKだが念のため）
-                friends.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+                try {
+                    friends = JSON.parse(json);
+                    friends.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+                } catch(e) {
+                    console.error('Data corrupted', e);
+                    friends = [];
+                }
             } else {
                 friends = [];
             }
@@ -220,35 +312,27 @@
 
         function saveToStorage() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(friends));
-            loadFriendsFromStorage(); // 再ロードしてソートなどを反映
+            loadFriendsFromStorage(); // 再ロード（ソート等のため）
             renderTagFilters();
             renderList();
         }
 
         function saveFriendData(friendData) {
             const now = new Date().toISOString();
-
             if (friendData.id) {
-                // 更新
                 const index = friends.findIndex(f => f.id === friendData.id);
                 if (index !== -1) {
-                    friends[index] = {
-                        ...friends[index],
-                        ...friendData,
-                        updatedAt: now
-                    };
+                    friends[index] = { ...friends[index], ...friendData, updatedAt: now };
                 }
             } else {
-                // 新規作成
                 const newFriend = {
                     ...friendData,
-                    id: crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now(), // UUID生成
+                    id: crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + Math.random(),
                     createdAt: now,
                     updatedAt: now
                 };
                 friends.push(newFriend);
             }
-            
             saveToStorage();
             resetForm();
             toggleForm(false);
@@ -258,13 +342,94 @@
             if (!confirm('本当に削除しますか？')) return;
             friends = friends.filter(f => f.id !== id);
             saveToStorage();
-            if (!els.formSection.classList.contains('hidden')) {
-                toggleForm(false);
-            }
+            if (!els.formSection.classList.contains('hidden')) toggleForm(false);
         }
 
-        // --- レンダリング (UI生成) ---
+        // --- データ管理機能（JSON） ---
 
+        // エクスポート（コピー）
+        function exportToClipboard() {
+            const dataStr = JSON.stringify(friends, null, 2);
+            navigator.clipboard.writeText(dataStr).then(() => {
+                alert('クリップボードにコピーしました！\nメモアプリなどに貼り付けて保存してください。');
+            }).catch(e => alert('コピーに失敗しました: ' + e));
+        }
+
+        // エクスポート（ファイル保存）
+        function exportToFile() {
+            const dataStr = JSON.stringify(friends, null, 2);
+            const blob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const date = new Date().toISOString().slice(0,10).replace(/-/g, '');
+            a.href = url;
+            a.download = `yottomo_backup_${date}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // インポート処理
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // 簡易バリデーション
+                    if (!Array.isArray(importedData)) {
+                        throw new Error('データ形式が不正です（配列ではありません）');
+                    }
+
+                    // モード選択
+                    const mode = confirm(
+                        `読み込みに成功しました（${importedData.length}件）。\n\n` +
+                        `【OK】を押すと、現在のデータを「すべて消去」して置き換えます（復元モード）。\n` +
+                        `【キャンセル】を押すと、現在のデータに「追加」します（マージモード）。`
+                    );
+
+                    if (mode) {
+                        // 上書きモード
+                        friends = importedData;
+                        alert('データを復元（置き換え）しました！');
+                    } else {
+                        // 追加モード (IDが重複するものは上書きしない、あるいは新しいIDにするか...今回は単純に結合)
+                        // ※同じIDのデータがあれば上書き、なければ追加という賢いマージにする
+                        let addedCount = 0;
+                        let updatedCount = 0;
+                        
+                        importedData.forEach(newItem => {
+                            const existingIndex = friends.findIndex(f => f.id === newItem.id);
+                            if (existingIndex !== -1) {
+                                // 既存にある場合は、更新日時が新しい方を採用するか？
+                                // ここではシンプルに「インポートしたデータで上書き」する
+                                friends[existingIndex] = newItem;
+                                updatedCount++;
+                            } else {
+                                friends.push(newItem);
+                                addedCount++;
+                            }
+                        });
+                        alert(`データを追加しました。\n（新規: ${addedCount}件 / 更新: ${updatedCount}件）`);
+                    }
+
+                    saveToStorage(); // 保存して再描画
+                    toggleDataModal(false);
+
+                } catch (err) {
+                    alert('ファイルの読み込みに失敗しました。\n正しいJSONファイルか確認してください。\n' + err.message);
+                }
+                // inputをリセット（同じファイルを再度選べるように）
+                els.importInput.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // --- レンダリング ---
         function renderEmojiPicker() {
             if (!els.inputs.emojiManual.value) els.inputs.emojiManual.value = EMOJI_LIST[0];
             els.emojiGrid.innerHTML = EMOJI_LIST.map((emoji, index) => `
@@ -283,11 +448,7 @@
                 if(Array.isArray(f.tags)) f.tags.forEach(t => { if(t.trim()) allTags.add(t.trim()); });
             });
             const container = els.tagFilterContainer;
-            // 2番目以降（生成されたタグボタン）を削除
-            while (container.children.length > 1) {
-                container.removeChild(container.lastChild);
-            }
-
+            while (container.children.length > 1) container.removeChild(container.lastChild);
             Array.from(allTags).sort().forEach(tag => {
                 const btn = document.createElement('button');
                 btn.className = `px-3 py-1.5 rounded-full text-xs font-bold border whitespace-nowrap transition flex-shrink-0 ${currentFilterTag === tag ? 'bg-indigo-400 text-white border-indigo-400' : 'bg-white text-gray-500 border-gray-200 hover:bg-indigo-50'}`;
@@ -295,7 +456,6 @@
                 btn.onclick = () => { currentFilterTag = tag; renderTagFilters(); renderList(); };
                 container.appendChild(btn);
             });
-            
             const allBtn = container.children[0];
             allBtn.className = `px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition flex-shrink-0 ${currentFilterTag === 'ALL' ? 'bg-gray-700 text-white' : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-100'}`;
         }
@@ -316,9 +476,7 @@
             
             els.list.innerHTML = '';
             els.countBadge.textContent = `${filtered.length}人`;
-            
-            if (viewMode === 'list') els.list.className = 'space-y-3';
-            else els.list.className = 'grid grid-cols-2 gap-3 space-y-0';
+            els.list.className = viewMode === 'list' ? 'space-y-3' : 'grid grid-cols-2 gap-3 space-y-0';
 
             if (filtered.length === 0) els.emptyState.classList.remove('hidden');
             else {
@@ -368,17 +526,25 @@
         }
 
         // --- イベントハンドラ ---
-
         function toggleForm(show) {
             if (show) {
                 els.formSection.classList.remove('hidden');
                 els.fabBtn.classList.add('hidden');
-                // スマホで見やすいように少しスクロール
                 els.formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } else {
                 els.formSection.classList.add('hidden');
                 els.fabBtn.classList.remove('hidden');
                 resetForm();
+            }
+        }
+        
+        function toggleDataModal(show) {
+            if (show) {
+                els.dataModal.classList.remove('hidden');
+                document.body.classList.add('modal-open');
+            } else {
+                els.dataModal.classList.add('hidden');
+                document.body.classList.remove('modal-open');
             }
         }
 
@@ -396,7 +562,6 @@
         window.editFriend = function(id) {
             const friend = friends.find(f => f.id === id);
             if (!friend) return;
-
             els.inputs.id.value = friend.id;
             els.inputs.name.value = friend.name;
             els.inputs.nickname.value = friend.nickname;
@@ -404,12 +569,9 @@
             els.inputs.tags.value = (friend.tags || []).join(', ');
             els.inputs.memo.value = friend.memo;
             els.inputs.emojiManual.value = friend.emoji || EMOJI_LIST[0];
-
-            // ラジオボタン反映
             const radio = Array.from(document.querySelectorAll('.emoji-radio')).find(r => r.value === friend.emoji);
             if (radio) radio.checked = true;
             else document.querySelectorAll('.emoji-radio').forEach(r => r.checked = false);
-
             els.deleteBtnArea.classList.remove('hidden');
             els.formTitle.textContent = '友達情報を編集';
             els.saveBtn.textContent = '更新する';
@@ -421,7 +583,6 @@
                 e.preventDefault();
                 const name = els.inputs.name.value.trim();
                 if (!name) return;
-                
                 const friendData = {
                     id: els.inputs.id.value || null,
                     name: name,
@@ -439,6 +600,17 @@
             els.fabBtn.addEventListener('click', () => toggleForm(true));
             els.closeBtn.addEventListener('click', () => toggleForm(false));
             
+            // データ管理メニュー
+            els.dataMenuBtn.addEventListener('click', () => toggleDataModal(true));
+            els.closeDataModalBtn.addEventListener('click', () => toggleDataModal(false));
+            els.dataModalOverlay.addEventListener('click', () => toggleDataModal(false));
+
+            // インポート/エクスポート
+            els.copyJsonBtn.addEventListener('click', exportToClipboard);
+            els.downloadJsonBtn.addEventListener('click', exportToFile);
+            els.importBtn.addEventListener('click', () => els.importInput.click());
+            els.importInput.addEventListener('change', handleFileSelect);
+
             els.deleteFromFormBtn.addEventListener('click', () => {
                 const id = els.inputs.id.value;
                 if(id) deleteFriend(id);
@@ -456,15 +628,6 @@
 
             els.viewBtns.list.addEventListener('click', () => { viewMode = 'list'; els.viewBtns.list.classList.add('active'); els.viewBtns.grid.classList.remove('active'); renderList(); });
             els.viewBtns.grid.addEventListener('click', () => { viewMode = 'grid'; els.viewBtns.grid.classList.add('active'); els.viewBtns.list.classList.remove('active'); renderList(); });
-
-            // データエクスポート機能（JSONコピー）
-            els.dataMenuBtn.addEventListener('click', () => {
-                const dataStr = JSON.stringify(friends, null, 2);
-                const doCopy = confirm('現在のデータをクリップボードにコピーしますか？\n（バックアップとして利用できます）');
-                if(doCopy) {
-                    navigator.clipboard.writeText(dataStr).then(() => alert('コピーしました')).catch(e => alert('コピー失敗:' + e));
-                }
-            });
         }
 
         document.addEventListener('DOMContentLoaded', init);
